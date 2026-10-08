@@ -1,0 +1,37 @@
+{
+  "name": "phone-mcp",
+  "version": "1.0.0",
+  "description": "用 MCP 驱动一台安卓手机或模拟器：点按、滑动、输入中文、截图、录屏看视频、跑宏、控制网易云音乐、刷 QQ 空间",
+  "type": "module",
+  "main": "src/phone-mcp.js",
+  "bin": {
+    "phone-mcp": "src/phone-mcp.js"
+  },
+  "files": [
+    "src",
+    "README.md"
+  ],
+  "scripts": {
+    "start": "node src/phone-mcp.js",
+    "selftest": "node src/phone-mcp.js --selftest"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "android",
+    "adb",
+    "automation",
+    "emulator",
+    "ai-agent",
+    "netease-music",
+    "qzone"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "zod": "^3.23.0"
+  }
+}

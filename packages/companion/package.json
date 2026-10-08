@@ -1,0 +1,49 @@
+{
+  "name": "ai-companion",
+  "version": "1.0.0",
+  "description": "给你的 QQ 号装一个会记事、会看场合、打字像真人的 AI 陪聊：角色卡 + 按人存的记忆账本 + 拟人化发送 + 唤醒策略",
+  "type": "module",
+  "main": "src/lib.js",
+  "exports": {
+    ".": "./src/lib.js",
+    "./memory": "./src/memory.js",
+    "./role": "./src/role.js",
+    "./brain": "./src/brain.js",
+    "./humanize": "./src/humanize.js",
+    "./wake": "./src/wake.js",
+    "./onebot": "./src/transport-onebot.js"
+  },
+  "bin": {
+    "companion": "src/index.js"
+  },
+  "files": [
+    "src",
+    "role.example.md",
+    "config.example.json",
+    "README.md"
+  ],
+  "scripts": {
+    "start": "node src/index.js --config ./config.json",
+    "check": "node src/index.js --check --config ./config.json",
+    "dry": "node src/index.js --dry-run --config ./config.json"
+  },
+  "keywords": [
+    "qq",
+    "chatbot",
+    "companion",
+    "ai-companion",
+    "onebot",
+    "llm",
+    "agent",
+    "persona",
+    "memory"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {},
+  "optionalDependencies": {
+    "ws": "^8.18.0"
+  }
+}

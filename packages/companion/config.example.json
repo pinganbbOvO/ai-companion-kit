@@ -1,0 +1,46 @@
+{
+  "// 1": "=== 模型 ===",
+  "apiKey": "sk-在这里填你的 key",
+  "baseUrl": "https://api.deepseek.com/v1",
+  "model": "deepseek-chat",
+
+  "// 2": "=== 角色 ===",
+  "roleCard": "role.md",
+  "roleMaxChars": 12000,
+
+  "// 3": "=== 她是谁 ===",
+  "names": ["小鱼", "小助手"],
+  "keywords": ["小鱼", "在吗"],
+  "ownerIds": ["你的QQ号"],
+
+  "// 4": "=== OneBot（NapCat / Lagrange / SnowLuma 都行）===",
+  "onebot": {
+    "wsUrl": "ws://127.0.0.1:3001",
+    "httpUrl": "http://127.0.0.1:3000",
+    "accessToken": ""
+  },
+
+  "// 5": "=== 什么时候说话 ===",
+  "wake": {
+    "groupAtOnly": true,
+    "probability": 0.05,
+    "privateWindowMs": 1500,
+    "groupWindowMs": 6000
+  },
+
+  "// 6": "=== 怎么说话（拟人化）===",
+  "humanize": {
+    "enabled": true,
+    "msPerChar": 85,
+    "minMs": 1200,
+    "maxMs": 6000,
+    "jitter": 0.2,
+    "burstMax": 4,
+    "gapRange": [700, 2600],
+    "longGapChance": 0.25,
+    "longGapRange": [3000, 9000]
+  },
+
+  "// 7": "=== 数据存哪（账本 + 对话流）===",
+  "dataDir": "data"
+}

@@ -1,0 +1,34 @@
+{
+  "name": "ai-companion-kit",
+  "version": "1.0.0",
+  "private": true,
+  "description": "给 AI 一副身体，和一点人味 —— 会记事的陪聊 + 能控制安卓手机的 MCP",
+  "type": "module",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "demo": "node packages/companion/examples/demo.js",
+    "check": "node scripts/check.mjs",
+    "phone": "node packages/phone-mcp/src/phone-mcp.js",
+    "phone:test": "node packages/phone-mcp/src/phone-mcp.js --selftest"
+  },
+  "keywords": [
+    "ai",
+    "companion",
+    "chatbot",
+    "mcp",
+    "model-context-protocol",
+    "android",
+    "adb",
+    "automation",
+    "onebot",
+    "qq",
+    "memory",
+    "persona"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  }
+}
