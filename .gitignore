@@ -26,3 +26,10 @@ desktop.ini
 *.bak-*
 *.old
 *~
+
+# 视频和音频素材（太大 ✗ 不进仓库 ✗ 放 B站/网盘）
+assets/video/
+*.mp4
+*.wav
+*.mov
+*.mkv

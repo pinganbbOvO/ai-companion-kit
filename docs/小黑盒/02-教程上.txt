@@ -1,0 +1,179 @@
+【教程·上】从零搭一只小鲸鱼：准备 + 打通 QQ + 接线员
+
+════════════════════════════════════
+
+这是教程的上篇。中篇讲角色卡、记忆、语音、听歌。下篇讲手机、日记、防风控。
+
+先说清楚：整个过程大概需要 30 分钟，其中 15 分钟在等下载。不需要你会写代码，所有命令都是复制粘贴。
+
+
+一、整体架构
+
+先看一眼这东西是怎么串起来的：
+
+    QQ 客户端（她的号登在这里）
+        ↓
+    SnowLuma（QQ 协议网关）
+        ↓
+    qq-bridge（接线员，管记忆和节奏）
+        ↓
+    AI 大脑（负责想事情）
+
+每一层干什么：
+
+QQ 客户端 —— 就是个普通的 QQ，你登一个小号进去。她"住"在这里。
+
+SnowLuma —— 把 QQ 协议翻译成程序能懂的接口。这部分最难，别自己写，用现成的。
+
+qq-bridge —— 我写的。它干三件事：判断要不要叫醒她、叫醒时把角色卡和记忆拼成提示词、把她的回复按人类节奏分条发出去。
+
+AI 大脑 —— 用 DeepSeek 的 API。负责"想"。
+
+
+二、准备清单
+
+硬件：
+一台 Windows 电脑，建议 16G 内存，最好常开。
+
+软件：
+QQ NT 版 —— im.qq.com 下载，登你的小号
+Node.js 20 以上 —— nodejs.org，一路下一步
+SnowLuma —— GitHub 上搜，解压到一个纯英文路径
+DSH —— DeepSeek Harness，装好并配好 API key
+DeepSeek API key —— platform.deepseek.com 申请
+
+两个提醒：
+
+第一，QQ 小号。别用主号，原因在教程下篇的防风控章节。
+
+第二，如果你装了 Watt Toolkit（Steam++），装依赖的时候先关掉。它会把 GitHub 域名劫持到 127.0.0.1，导致所有下载失败。这个坑我卡了一个多小时。
+
+
+三、第 1 步：让 QQ 能被程序控制
+
+3.1 启动 SnowLuma
+
+解压到比如 E:\SnowLuma，然后：
+
+    cd E:\SnowLuma
+    .\node.exe index.mjs
+
+第一次跑会出二维码，用她的手机 QQ 扫码登录。
+
+注意：路径千万别有中文和空格，Node 会找不到模块。
+
+3.2 配置接口
+
+SnowLuma 的管理界面在 http://127.0.0.1:5099，进去配置：
+
+HTTP 服务：开，端口填 3000
+WS 服务：开，端口填 3001
+Access Token：自己设一个，记下来，后面要用
+
+3.3 这里有个大坑
+
+SnowLuma 的配置文件里，token 的位置是 snowluma.accessToken，不是 onebot.accessToken。
+
+我一开始读错了位置，拿到一个空 token，然后所有请求都返回 401。查了很久才发现是读错了字段。
+
+3.4 验证一下
+
+打开 PowerShell，粘这段（把 TOKEN 换成你刚设的）：
+
+    $T = "你的token"
+    Invoke-WebRequest 'http://127.0.0.1:3000/get_status' -Method POST -Body ([System.Text.Encoding]::UTF8.GetBytes('{}')) -ContentType 'application/json' -Headers @{ Authorization = "Bearer $T" } -UseBasicParsing
+
+看到 online 是 true 就成了。
+
+3.5 第二个坑：中文变成 ????
+
+PowerShell 的 Invoke-WebRequest 默认用 ISO-8859-1 发中文，必须写成这样：
+
+    -Body ([System.Text.Encoding]::UTF8.GetBytes($body))
+    -ContentType 'application/json; charset=utf-8'
+
+不然你发的中文会全部变成问号。这个坑会在你发第一条中文消息的时候教你做人。
+
+
+四、第 2 步：接线员
+
+qq-bridge 是整套东西的心脏。目录结构大概是这样：
+
+    qq-bridge\
+    ├── src\
+    │   ├── bridge.js              主程序
+    │   ├── mcp-snowluma-safe.js   给 AI 的 QQ 工具
+    │   └── mcp-phone.js           给 AI 的手机工具
+    ├── roles\
+    │   └── 小鲸鱼.md              角色卡，她的灵魂
+    ├── state\
+    │   ├── social-v2.json         会话状态
+    │   ├── people.json            关于你的记忆
+    │   └── bridge.log             日志
+    └── config.json
+
+4.1 最小配置
+
+打开 config.json，改这几个地方：
+
+    ownerQQ          → 你的 QQ 号（管理员）
+    snowluma.httpUrl → http://127.0.0.1:3000
+    snowluma.accessToken → 刚设的 token
+    dsh.baseUrl      → DSH 的地址
+    allow.private    → 你的 QQ 号
+    allow.groups     → 你想让她进的群
+
+4.2 启动
+
+    cd E:\qq-bridge
+    node src\bridge.js
+
+看到这两行就成了：
+
+    DSH 已就绪（模式: reserved2）
+    桥接模式已确定为 reserved2
+
+管理界面在 http://127.0.0.1:3100。
+
+4.3 第三个坑：token 不能混用
+
+reserved2 模式下，每个会话有独立的 agentToken。私聊和群聊的 token 不一样，混用会 403。
+
+要从 state/social-v2.json 里的 conversations['private:你的QQ号'].agentToken 取。
+
+
+五、到这里你已经能用了
+
+现在用你的主号给小号发条消息试试。她应该会回你。
+
+能用的功能：
+私聊聊天 ✅
+记住你 ✅
+发表情包 ✅
+
+需要额外配置的：
+群聊 —— 把群号加进 allow.groups
+发图片 —— 要配 socialV2.image.allowDirs
+听懂语音 —— 要装 whisper
+知道你听什么歌 —— 要开网易云调试端口
+看手机屏幕 —— 要装模拟器 + adb
+写日记 —— 有现成的模块
+
+这些都在中篇和下篇。
+
+
+六、上篇小结
+
+到这里你完成的事：
+1. QQ 能被程序控制了
+2. 接线员跑起来了
+3. 她能回你消息了
+
+踩过的坑：
+· 路径有中文 → Node 找不到模块
+· Watt Toolkit 劫持 GitHub → 依赖装不上
+· accessToken 位置读错 → 401
+· PowerShell 发中文 → 变问号
+· 会话 token 混用 → 403
+
+中篇见。
