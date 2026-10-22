@@ -994,6 +994,35 @@ function htmlToText(s) {
 
 const QZONE_LIMIT = { perMinute: 3, perDay: 20, hits: [] };
 
+// ── 补齐 qzone_* 依赖的两个符号（原版缺失，调用即 ReferenceError）────────────────
+// SnowLuma OneBot HTTP 端点：默认本地 3000，可用 SNOWLUMA_HTTP 覆盖。
+const SNOWLUMA_HTTP = String(process.env.SNOWLUMA_HTTP || 'http://127.0.0.1:3000').replace(/\/+$/, '');
+
+/**
+ * 取 SnowLuma 的 OneBot accessToken。
+ * 顺序：环境变量 → SNOWLUMA_CONFIG 指定的 config.json → qq-bridge 默认配置。
+ * 只读本地文件，不联网。
+ */
+function loadSnowlumaToken() {
+  // 1) 显式环境变量优先（推荐：MCP 客户端配置里直接写）
+  const direct = String(process.env.SNOWLUMA_ACCESS_TOKEN || '').trim();
+  if (direct) return direct;
+  // 2) 其次读配置文件（SNOWLUMA_CONFIG 指定，或几个常见位置）
+  const candidates = [
+    process.env.SNOWLUMA_CONFIG,
+    path.join(process.cwd(), 'config.json'),
+    path.join(os.homedir(), '.dsh', 'qq-bridge', 'config.json'),
+  ].filter(Boolean);
+  for (const file of candidates) {
+    try {
+      const cfg = JSON.parse(fs.readFileSync(file, 'utf8').replace(/^\uFEFF/, ''));
+      const token = cfg?.snowluma?.accessToken || cfg?.accessToken;
+      if (token) return String(token).trim();
+    } catch {}
+  }
+  return '';
+}
+
 async function snowluma(action, payload) {
   const token = loadSnowlumaToken();
   if (!token) throw new Error('拿不到 SnowLuma 访问令牌（config.json 的 snowluma.accessToken）');
